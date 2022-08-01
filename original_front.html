@@ -1,0 +1,247 @@
+<div class="card-content">
+    <p><b>{{Suggestion}}</b></p>
+  
+    <p>{{cloze:Explanation}}</p>
+  
+    {{type:cloze:Explanation}}
+  </div>
+  
+      <div class="card-content" , id="front-side">
+          <div id="query">{{Keyword}}</div>
+          <div id="hidden-word"></div>
+          <div>
+              <p id="definition"></p>
+          </div>
+      </div>
+      <div class="card-content" , id="back-side">
+          <div id="full-definition"></div>
+      </div>
+  
+      <script src="longman.js"></script>
+      <link rel="stylesheet" href="https://www.ldoceonline.com/common.css?version=1.2.53">
+      <link rel="stylesheet"
+          href="https://www.ldoceonline.com/external/fonts/font-awesome/5.12.0/css/font-awesome.min.css?version=1.2.53">
+  
+  <script>
+  
+  /* -------------------------------------------------------------------------- */
+  /*                               Helper Function                              */
+  /* -------------------------------------------------------------------------- */
+  function getSourceElement(text) {
+      const bodyRegex = /<body.*?>([\s\S]*?)<\/body>/;
+      const htmlBody = bodyRegex.exec(text)[1];
+      sourceElement = document.createElement('div')
+      sourceElement.id = 'source';
+      sourceElement.style.display = 'none';
+      sourceElement.innerHTML = htmlBody;
+      document.body.append(sourceElement);
+      return sourceElement;
+  }
+  
+  const SelectOption = Object.freeze({
+      First: Symbol("first"),
+      Random: Symbol("random"),
+      Last: Symbol("last")
+  })
+  
+  function getHiddenWord(word, option) {
+      const hiddenChar = "✪"
+      const chars = [...word];
+      const punctuations = [".", " ", ",", "?", "!", "(", ")", "-"];
+  
+      var displayIndex = 0;
+      var hiddenWord = "";
+  
+  
+      // avoid empty word
+      if (chars.length == 0) { return word; }
+  
+      switch (option) {
+          case SelectOption.First:
+              displayIndex = 0;
+              break;
+          case SelectOption.Random:
+              displayIndex = Math.floor(Math.random() * chars.length);
+              break;
+          case SelectOption.Last:
+              displayIndex = chars.length - 1;
+              break;
+          default:
+              break;
+      }
+  
+      if (chars.length <= 1) {
+          hiddenWord = hiddenChar;
+      } else {
+          for (let i = 0; i < chars.length; i++) {
+              if (i == displayIndex) {
+                  hiddenWord += ` ${chars[i]}`;
+              } else if (punctuations.includes(chars[i])) {
+                  hiddenWord += `${chars[i]}`;
+              } else {
+                  hiddenWord += hiddenChar;
+              }
+          }
+      }
+  
+  
+      return hiddenWord
+  }
+  
+  function getElementsByClassName(className, option) {
+      const es = document.getElementsByClassName(className);
+      if (es.length == 0) { return null }
+  
+      var index = 0
+      switch (option) {
+          case SelectOption.First:
+              index = 0;
+              break;
+          case SelectOption.Random:
+              index = Math.floor(Math.random() * es.length);
+              break;
+          case SelectOption.Last:
+              index = es.length - 1;
+              break;
+          default:
+              index = 0;
+              break;
+      }
+  
+      return es[index];
+  }
+  
+  function getDefinition(word, hiddenWord, option) {
+      const element = getElementsByClassName("DEF", option);
+  
+      if (element == null) {
+          return null
+      }
+  
+      element.innerText = element.innerText.replace(new RegExp(`${word}`, "ig"), `${hiddenWord}`)
+  
+      return element;
+  }
+  
+  
+  /* -------------------------------------------------------------------------- */
+  /*                                    main                                    */
+  /* -------------------------------------------------------------------------- */
+  function main() {
+  
+      window.word = document.getElementById("query").innerText;
+      const url = "https://www.ldoceonline.com/dictionary/" + window.word;
+      const hiddenClassNames = ["topics_container", "frequent Head", "EXAMPLE", "Crossref", "COLLO", "SYN", "RELATEDWD"]
+  
+      window.hiddenWord = getHiddenWord(window.word, SelectOption.First)
+      document.getElementById("hidden-word").innerText = window.hiddenWord;
+  
+      // pre-load
+      fetch(url)
+          .then(response => response.text())
+          .then(text => {
+              getSourceElement(text);
+  
+              window.entries = document.getElementsByClassName("ldoceEntry Entry");
+              const definitionContainer = document.getElementById("definition");
+              if (definition) {
+                  for (let i = 0; i < window.entries.length; i++) {
+                      definitionContainer.append(window.entries[i]);
+                  }
+              } else {
+                  definitionContainer.innerText = "error: definition not fount";
+              }
+  
+              // delete the dot inside keyword
+              window.hyphenations = document.getElementsByClassName("HYPHENATION");
+              for (let i = 0; i < window.hyphenations.length; i++) {
+                  const element = window.hyphenations[i];
+                  window.hyphenations[i].innerText = window.hyphenations[i].innerText.replace(new RegExp(`‧`, "ig"), ``)
+  
+              }
+  
+              // hide characters in the keyword
+              for (let i = 0; i < window.entries.length; i++) {
+                  const element = window.entries[i];
+  
+                  window.entries[i].innerHTML = window.entries[i].innerHTML.replace(new RegExp(`${window.word}`, "ig"), `${window.hiddenWord}`)
+              }
+  
+              // // remove empty definition
+              // var emptyDefs = [];
+              // var senses = window.entry.getElementsByClassName("Sense");
+              // for (let i = 0; i < senses.length; i++) {
+              //     var defs = senses[i].getElementsByClassName("DEF");
+              //     if (defs.length == 0) {
+              //         emptyDefs.push(senses[i]);
+              //     }
+              // }
+  
+              // for (let i = 0; i < emptyDefs.length; i++) {
+              //     window.entry.removeChild(emptyDefs[i]);
+              // }
+  
+  
+              // for (let i = 0; i < hiddenClassNames.length; i++) {
+              //     const es = window.entry.getElementsByClassName(hiddenClassNames[i]);
+              //     for (let ii = 0; ii < es.length; ii++) {
+              //         es[ii].style.display = 'none';
+              //     }
+              // }
+  
+              // TODO: hide IPA
+              // TODO: select a random entry
+              // TODO: select a random definition
+  
+  
+  
+              // TODO: definition in back ad front must be the same
+          });
+  
+      // TODO: trigger data loading on change
+  }
+  
+  // function callback(mutationList, observer) {
+  //     main();
+  // }
+  // // document.body.onload = main;
+  // const observerOptions = {
+  //     childList: true,
+  //     attributes: true
+  // }
+  
+  // const observer = new MutationObserver(callback);
+  // const card = document.getElementsByClassName("card-content")[0];
+  // observer.observe(card, observerOptions);
+  
+  // const query = document.getElementById("query")
+  // query.onclick = function () {
+  //     query.innerText = "card";
+  //     card.append("<p></p>");
+  // };
+  
+  function waitForElm(selector) {
+      return new Promise(resolve => {
+          if (document.querySelector(selector)) {
+              return resolve(document.querySelector(selector));
+          }
+  
+          const observer = new MutationObserver(mutations => {
+              if (document.querySelector(selector)) {
+                  resolve(document.querySelector(selector));
+                  observer.disconnect();
+              }
+          });
+  
+          observer.observe(document.body, {
+              childList: true,
+              subtree: true
+          });
+      });
+  }
+  
+  waitForElm('.card-content').then((elm) => {
+      main();
+  });
+  
+  </script>
