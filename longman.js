@@ -2,35 +2,15 @@
 /*                                    Plan                                    */
 /* -------------------------------------------------------------------------- */
 /*
-- [x] include js file to html
-- [x] include css file to html
-- [x] live view for html
-- [x] word
-- [x] url
-- [x] get html
-- [x] set htmlBody to hidden element
-- [ ] set up layout
-    - [ ] front side
-        - [x] hidden word, 
-            - [x] option: only display the first character
-            - [x] option: only display the last character
-            - [x] option: only display one random character in the word
-            - [x] not replace punctuating, prevent misleading when hide the phrase 
-        - [x] definition, random?
-            - [x] check and delete the word?
-            - [x] shuffle definition list and get the firs definition does not contain the word?
-            - [x] handle error when not found the word
-    - [ ] back side
-        - [ ] word
-        - [ ] IPA
-        - [ ] POS
-        - [ ] racking
-        - [ ] definitions
-            - [ ] examples
-            - [ ] photo
-        - [ ] maybe audio links?
-
-    - [ ] 
+- [ ] photo
+- [ ] maybe audio links?
+- [ ] select a random entry
+    - [ ] select a random definition
+    - [ ] definition in back ad front must be the same
+- [ ] host js remotely (github?)
+- [ ] hide variant of verbs
+    - [ ] how to auto get different form of verb
+- [ ] 
 
 */
 
@@ -163,7 +143,8 @@ function deleteDotInsideWord() {
     window.hyphenations = document.getElementsByClassName("HYPHENATION");
     for (let i = 0; i < window.hyphenations.length; i++) {
         const element = window.hyphenations[i];
-        window.hyphenations[i].innerText = window.hyphenations[i].innerText.replace(new RegExp(`‧`, "ig"), ``);
+        // more than one "hyphen" character
+        window.hyphenations[i].innerText = window.hyphenations[i].innerText.replace(new RegExp(`·|‧|ˈ|ˌ`, "ig"), ``);
     }
 }
 
@@ -188,7 +169,8 @@ function hideIPAs() {
 function loadFrontSide() {
 
     // window.word = "{{Keyword}}";
-    window.word = document.getElementById("hidden-word").innerText;
+    // need to remove space by "-"
+    window.word = document.getElementById("hidden-word").innerText.replace(" ", "-");
     const url = "https://www.ldoceonline.com/dictionary/" + window.word;
     const hiddenClassNames = ["topics_container", "frequent Head", "EXAMPLE", "Crossref", "COLLO", "SYN", "RELATEDWD"]
 
@@ -203,14 +185,7 @@ function loadFrontSide() {
 
             // delete the dot inside keyword
             hideWordRelevantData();
-
-            // TODO: select a random entry
-            // TODO: select a random definition
-
-            // TODO: definition in back ad front must be the same
         });
-
-    // TODO: trigger data loading on change
 }
 
 function loadBackSide() {
