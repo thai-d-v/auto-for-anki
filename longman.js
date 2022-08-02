@@ -217,3 +217,5 @@ function loadBackSide() {
                 setupData(text);
             });
 }
+
+loadFrontSide();
