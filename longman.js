@@ -2,14 +2,16 @@
 /*                                    Plan                                    */
 /* -------------------------------------------------------------------------- */
 /*
-- [ ] photo
 - [ ] maybe audio links?
 - [ ] select a random entry
     - [ ] select a random definition
     - [ ] definition in back ad front must be the same
-- [ ] host js remotely (github?)
-- [ ] hide variant of verbs
+- [x] host js remotely (github?)
+- [ ] hide variant of verb, adjective
     - [ ] how to auto get different form of verb
+    - [ ] how to auto get different form of adjective (comparative)
+- [x] hide image (like in "fix" word)
+- [ ] store the requested word and check it to prevent wrong card.
 - [ ] 
 
 */
@@ -123,6 +125,17 @@ function hideWordRelevantData() {
 
     // hide ipa
     hideIPAs();
+
+    // hide images
+    hideImages();
+}
+
+function hideImages() {
+    const definitionContainer = document.getElementById("definition");
+    imgs = definitionContainer.getElementsByTagName('img');
+    for (let i = 0; i < imgs.length; i++) {
+        imgs[i].style.display = "none";
+    }
 }
 
 function setupData(text) {
@@ -204,3 +217,14 @@ function loadBackSide() {
                 setupData(text);
             });
 }
+
+var css_0 = document.createElement("link");
+css_0.rel = "styleSheet";
+css_0.href = "https://www.ldoceonline.com/common.css?version=1.2.53";
+
+var css_1 = document.createElement("link");
+css_1.rel = "styleSheet";
+css_1.href = "https://www.ldoceonline.com/external/fonts/font-awesome/5.12.0/css/font-awesome.min.css?version=1.2.53";
+css_1.onload = loadFrontSide();
+
+document.getElementsByClassName("card-content")[0].appendChild(css_0, css_1);
