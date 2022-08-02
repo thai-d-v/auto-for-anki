@@ -2,14 +2,16 @@
 /*                                    Plan                                    */
 /* -------------------------------------------------------------------------- */
 /*
-- [ ] photo
 - [ ] maybe audio links?
 - [ ] select a random entry
     - [ ] select a random definition
     - [ ] definition in back ad front must be the same
-- [ ] host js remotely (github?)
-- [ ] hide variant of verbs
+- [x] host js remotely (github?)
+- [ ] hide variant of verb, adjective
     - [ ] how to auto get different form of verb
+    - [ ] how to auto get different form of adjective (comparative)
+- [x] hide image (like in "fix" word)
+- [ ] store the requested word and check it to prevent wrong card.
 - [ ] 
 
 */
@@ -123,6 +125,17 @@ function hideWordRelevantData() {
 
     // hide ipa
     hideIPAs();
+
+    // hide images
+    hideImages();
+}
+
+function hideImages() {
+    const definitionContainer = document.getElementById("definition");
+    imgs = definitionContainer.getElementsByTagName('img');
+    for (let i = 0; i < imgs.length; i++) {
+        imgs[i].style.display = "none";
+    }
 }
 
 function setupData(text) {
